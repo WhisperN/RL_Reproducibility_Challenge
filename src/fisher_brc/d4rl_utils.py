@@ -20,22 +20,48 @@ import d4rl
 import gym
 import numpy as np
 import tensorflow as tf
+# --- CHANGE START: import for random/expert mixtures ---
+import dataset_split
+# --- CHANGE END ---
 
 
 def create_d4rl_env_and_dataset(
     task_name,
-    batch_size
+    batch_size,
+    # --- CHANGE START: new optional arguments ---
+    expert_frac=None,
+    mix_seed=0,
+    # --- CHANGE END ---
 ):
   """Create gym environment and dataset for d4rl.
 
   Args:
     task_name: Name of d4rl task.
     batch_size: Mini batch size.
+    expert_frac: If None, the dataset of `task_name` is used unchanged. Otherwise
+      `task_name` must be an '-expert-' task, and the training data is a
+      random/expert mixture with this fraction of expert transitions.
+    mix_seed: Seed for the mixture sampling.
   Returns:
     Gym env and dataset.
   """
   env = gym.make(task_name)
-  dataset = d4rl.qlearning_dataset(env)
+  # --- CHANGE START: optional random/expert mixture (src/dataset_split.py) ---
+  if expert_frac is None:
+    dataset = d4rl.qlearning_dataset(env)
+  else:
+    if '-expert-' not in task_name:
+      raise ValueError(
+          f"expert_frac requires an '-expert-' task_name, got {task_name!r}.")
+    if not 0.0 <= expert_frac <= 1.0:
+      raise ValueError(f'expert_frac must be in [0, 1], got {expert_frac}.')
+    random_task_name = task_name.replace('-expert-', '-random-')
+    dataset = dataset_split.mix_datasets(
+        dataset_split.import_dataset(task_name),
+        dataset_split.import_dataset(random_task_name),
+        expert_frac=expert_frac,
+        seed=mix_seed)
+  # --- CHANGE END ---
 
   states = np.array(dataset['observations'], dtype=np.float32)
   actions = np.array(dataset['actions'], dtype=np.float32)

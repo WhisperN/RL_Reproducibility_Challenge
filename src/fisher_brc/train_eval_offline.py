@@ -43,13 +43,26 @@ flags.DEFINE_string('save_dir', '/tmp/save/', 'Saving directory.')
 flags.DEFINE_boolean('eager', False, 'Execute functions eagerly.')
 flags.DEFINE_float('f_reg', 0.1, 'Fisher regularization.')
 flags.DEFINE_float('reward_bonus', 5.0, 'CQL style reward bonus.')
+# --- CHANGE START: flag for random/expert dataset mixtures ---
+flags.DEFINE_float(
+    'expert_frac', None,
+    'If set, train on a random/expert mixture with this fraction of expert '
+    'transitions (0.75 = 25% random / 75% expert). task_name must then be an '
+    "'-expert-' task, e.g. hopper-expert-v2. The mixture is sampled with "
+    '--seed. If unset, task_name\'s dataset is used unchanged.')
+# --- CHANGE END ---
 
 
 def main(_):
   tf.config.experimental_run_functions_eagerly(FLAGS.eager)
 
   gym_env, dataset = d4rl_utils.create_d4rl_env_and_dataset(
-      task_name=FLAGS.task_name, batch_size=FLAGS.batch_size)
+      task_name=FLAGS.task_name,
+      batch_size=FLAGS.batch_size,
+      # --- CHANGE START: pass mixture settings through ---
+      expert_frac=FLAGS.expert_frac,
+      mix_seed=FLAGS.seed)
+      # --- CHANGE END ---
 
   env = gym_wrapper.GymWrapper(gym_env)
   env = tf_py_environment.TFPyEnvironment(env)
@@ -59,6 +72,10 @@ def main(_):
   tf.random.set_seed(FLAGS.seed)
 
   hparam_str = f'{FLAGS.algo_name}_{FLAGS.task_name}_seed={FLAGS.seed}'
+  # --- CHANGE START: separate output dirs per mixture ---
+  if FLAGS.expert_frac is not None:
+    hparam_str += f'_expert_frac={FLAGS.expert_frac}'
+  # --- CHANGE END ---
 
   summary_writer = tf.summary.create_file_writer(
       os.path.join(FLAGS.save_dir, 'tb', hparam_str))

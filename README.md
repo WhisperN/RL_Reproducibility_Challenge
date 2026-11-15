@@ -60,3 +60,23 @@ The first run compiles `mujoco-py`'s extension (a few minutes, once) and downloa
 cd src
 TF_CPP_MIN_LOG_LEVEL=2 python -m fisher_brc.train_eval_offline --task_name hopper-expert-v2 --num_updates 100 --bc_pretraining_steps 100 --eval_interval 50 --log_interval 50 --seed 42 --save_dir ~/fbrc_smoke/
 ```
+
+## Changes to Fisher-BRC
+
+The code has been taken from the following source: https://github.com/google-research/google-research/tree/master/fisher_brc
+
+It has been modified so that it can handle our random/expert dataset mixtures. `d4rl_utils.py` gets optional 
+`expert_frac`/`mix_seed` arguments, and `train_eval_offline.py`
+gets an `--expert_frac` flag (also appended to the output directory name). Without the flag, behavior is unchanged.
+Every change is wrapped in `# --- CHANGE START ... ---` / `# --- CHANGE END ---` comments.
+
+### Running Fisher-BRC on a mixture
+
+From `src/` (random share = 1 - `expert_frac`; the mixture is sampled with `--seed`):
+
+```bash
+python -m fisher_brc.train_eval_offline --task_name hopper-expert-v2 --expert_frac 0.75 --seed 0 --save_dir results/fbrc --alsologtostderr
+```
+
+Use `0.75`, `0.5`, `0.25` for the 25/75, 50/50 and 75/25 random/expert mixtures. Omit `--expert_frac` to train on the
+unmodified `task_name` dataset. Needs both `hopper-expert-v2` and `hopper-random-v2` D4RL datasets.
