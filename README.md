@@ -29,7 +29,7 @@ sudo apt install -y python3.10 python3.10-venv python3.10-dev build-essential pa
 # 2. MuJoCo 2.1.0 into ~/opt/mujoco210
 mkdir -p ~/opt && curl -L https://github.com/deepmind/mujoco/releases/download/2.1.0/mujoco210-linux-x86_64.tar.gz -o /tmp/mujoco210.tar.gz && tar -xzf /tmp/mujoco210.tar.gz -C ~/opt
 
-# 3. Environment variables (run this block ONCE: it appends to ~/.bashrc)
+# 3. Environment variables
 cat >> ~/.bashrc <<'EOF'
 export MUJOCO_PY_MUJOCO_PATH=$HOME/opt/mujoco210
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/opt/mujoco210/bin
@@ -38,12 +38,12 @@ export D4RL_SUPPRESS_IMPORT_ERROR=1
 EOF
 source ~/.bashrc
 
-# 4. Create the venv and update the installer tools (setuptools must be 80.10.2 so pkg_resources stays available)
+# 4. Create the venve)
 mkdir -p ~/venvs && python3.10 -m venv ~/venvs/rlenv
 source ~/venvs/rlenv/bin/activate
 python -m pip install -U pip "setuptools==80.10.2" wheel
 
-# 5. Install the pinned requirements (long: TensorFlow, torch; mjrl is cloned from GitHub).
+# 5. Install dependencies
 #    The extra index selects the CPU build of torch (the default Linux build pulls ~2 GB of CUDA libraries).
 python -m pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu
 ```
