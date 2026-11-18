@@ -31,6 +31,9 @@ from td3 import utils
 
 FLAGS = flags.FLAGS
 
+# Hide gym 0.23's repeated 'Box bound precision lowered' warning (harmless, printed on every gym.make).
+gym.logger.set_level(gym.logger.ERROR)
+
 # Same names and defaults as fisher_brc.train_eval_offline.
 flags.DEFINE_string('task_name', 'halfcheetah-expert-v0', 'Env name.')
 flags.DEFINE_integer('seed', 42, 'Random seed.')

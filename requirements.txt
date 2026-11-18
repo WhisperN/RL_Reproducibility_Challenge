@@ -7,6 +7,7 @@
 #   Cython==0.29.37    mujoco-py 2.1.2.14 does not build with Cython>=3
 #   setuptools<81      d4rl / pybullet_envs still import pkg_resources
 #   protobuf<5         tensorflow 2.15 (resolved via tensorflow pin)
+#   gym_notices==0.0.8 newer releases print an 'unmaintained' banner on every gym import
 #   torch==2.1.2       tf-agents 0.19.0 pins typing-extensions==4.5.0; torch>=2.2 needs >=4.8
 
 # --- core numerics / data
@@ -19,6 +20,7 @@ tqdm==4.70.1
 setuptools==80.10.2
 Cython==0.29.37
 gym==0.23.0
+gym_notices==0.0.8
 mujoco-py==2.1.2.14
 d4rl==1.1
 dm_control==1.0.50
