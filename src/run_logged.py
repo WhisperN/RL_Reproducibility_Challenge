@@ -44,7 +44,7 @@ def main(argv):
         'status': status,
         'wall_clock_s': round(wall, 1),
         'wall_clock_h': round(wall / 3600, 3),
-        'peak_rss_mb': round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024, 1),
+        'peak_rss_mb': round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / (1024 * 1024 if sys.platform == 'darwin' else 1024), 1),
     }
     with open(os.path.join(out_dir, 'run_metrics.json'), 'w') as f:
       json.dump(metrics, f, indent=2)
