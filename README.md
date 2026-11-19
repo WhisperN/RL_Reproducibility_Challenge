@@ -9,6 +9,7 @@ Compares TD3+BC (PyTorch) and Fisher-BRC (original, unmodified TensorFlow refere
 |---|---|
 | `src/dataset_split.py` | Random/expert dataset mixing (`mix_datasets`, `import_dataset`) |
 | `src/td3/` | TD3+BC (PyTorch, from sfujim/TD3_BC) and `train_eval_offline.py`, its Fisher-BRC-compatible runner |
+| `src/analyze_results.py` | Aggregates the evaluation results of both algorithms into tables and plots |
 | `src/fisher_brc/` | Fisher-BRC package: Google's reference implementation, unmodified apart from the added `__init__.py` (upstream source and commit in `src/fisher_brc/PROVENANCE.md`) |
 
 ## Environment setup
@@ -114,10 +115,23 @@ Every change is wrapped in `# --- CHANGE START ... ---` / `# --- CHANGE END ---`
 
 ### Running Fisher-BRC on a mixture
 
-From `src/` (random share = 1 - `expert_frac`; the mixture is sampled with `--seed`):
+Random share = 1 - `expert_frac`; the mixture is sampled with `--seed`.
+
+The easiest way is `src/run_fbrc.sh`, the Fisher-BRC counterpart of `src/run.sh` (see below): it activates the
+environment, sets the MuJoCo/D4RL variables and runs `run_logged.py` on `hopper-expert-v2` with `--save_dir src/results`
+and `--eval_interval 5000`, keeping the reference training length (1M BC pretraining steps + 1M updates). Only the seed
+and expert fraction are passed in; further flags are forwarded and override these:
 
 ```bash
-python -m fisher_brc.train_eval_offline --task_name hopper-expert-v2 --expert_frac 0.75 --seed 0 --save_dir results/fbrc --alsologtostderr
+./src/run_fbrc.sh 0 0.75                                                                        # seed 0, 25% random / 75% expert
+./src/run_fbrc.sh 0 0.75 --bc_pretraining_steps 1000 --num_updates 2000 --eval_interval 1000    # quick test
+```
+
+Results land in `src/results/results/fbrc_hopper-expert-v2_seed=<seed>_expert_frac=<frac>/` (with `run_metrics.json`),
+next to the TD3+BC runs. Or directly, from `src/` (with the environment active and the variables set):
+
+```bash
+python -m fisher_brc.train_eval_offline --task_name hopper-expert-v2 --expert_frac 0.75 --seed 0 --eval_interval 5000 --save_dir results --alsologtostderr
 ```
 
 Use `0.75`, `0.5`, `0.25` for the 25/75, 50/50 and 75/25 random/expert mixtures. Omit `--expert_frac` to train on the
@@ -147,11 +161,36 @@ Results land in `src/results/results/td3_bc_hopper-expert-v2_seed=<seed>_expert_
 Or directly, from `src/` (with the environment active and the variables set):
 
 ```bash
-python -m td3.train_eval_offline --task_name hopper-expert-v2 --expert_frac 0.75 --seed 0 --save_dir results/td3_bc
+python -m td3.train_eval_offline --task_name hopper-expert-v2 --expert_frac 0.75 --seed 0 --eval_interval 5000 --save_dir results/td3_bc
 ```
 
 With wall-clock/memory/hyperparameter logging (`run_metrics_td3.json`, like `run_logged.py`):
 
 ```bash
-python run_logged_td3.py --task_name hopper-expert-v2 --expert_frac 0.75 --seed 0 --save_dir results/td3_bc
+python run_logged_td3.py --task_name hopper-expert-v2 --expert_frac 0.75 --seed 0 --eval_interval 5000 --save_dir results/td3_bc
 ```
+
+**Evaluation interval:** both scripts default to `--eval_interval 10000`, the paper evaluates every 5000 updates
+(10 episodes each). Pass `--eval_interval 5000` to every run (`src/run.sh` does), otherwise "final 10 evaluations"
+covers the last 100k instead of the last 50k updates.
+
+## Analyzing results
+
+`src/analyze_results.py` follows the paper's protocol (Table 2 / Table 7): a run's score is the mean normalized score
+over its final 10 evaluations, reported as mean ± std (ddof=0) across seeds. From `src/`, with the environment active
+(needs `tensorboard`, installed with TensorFlow, and `matplotlib`):
+
+```bash
+python analyze_results.py results --out results/analysis
+```
+
+It finds all mixture runs of both algorithms under the given directories and writes to `--out`:
+
+| File | Contents |
+|---|---|
+| `per_run.csv` | Final score, wall-clock time and peak memory of every run |
+| `summary.md` | Mean ± std across seeds per mixture for both algorithms, and their difference |
+| `learning_curves.png` | Normalized score over training (mean ± std across seeds), one panel per mixture |
+| `score_vs_mixture.png` | Final score vs. share of random transitions, one line per algorithm |
+
+It warns about runs with fewer than 10 evaluations and about runs evaluated at different intervals.

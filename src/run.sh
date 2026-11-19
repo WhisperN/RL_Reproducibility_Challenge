@@ -5,7 +5,8 @@
 #   e.g.                  ./src/run.sh 0 0.75    (25% random / 75% expert)
 #
 # Results: src/results/results/td3_bc_hopper-expert-v2_seed=<seed>_expert_frac=<expert_frac>/
-# Any extra arguments are passed through, e.g. ./src/run.sh 0 0.75 --num_updates 2000 --eval_interval 1000
+# Evaluates every 5000 updates (as in the paper; the script default is 10000).
+# Any extra arguments are passed through and override these, e.g. ./src/run.sh 0 0.75 --num_updates 2000 --eval_interval 1000
 set -euo pipefail
 
 if [ $# -lt 2 ]; then
@@ -40,4 +41,5 @@ python run_logged_td3.py \
     --seed "$SEED" \
     --expert_frac "$EXPERT_FRAC" \
     --save_dir results \
+    --eval_interval 5000 \
     "$@"
