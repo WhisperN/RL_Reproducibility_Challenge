@@ -12,7 +12,6 @@ curl -fL -o "$RL_HOME/micromamba" https://github.com/mamba-org/micromamba-releas
 chmod +x "$RL_HOME/micromamba"
 "$RL_HOME/micromamba" create -y -r "$RL_HOME/mamba" -p "$ENV" -c conda-forge --override-channels \
     python=3.10 pip git tmux c-compiler patchelf "mesalib<25.1" glew glfw libgl-devel xorg-libx11 xorg-xorgproto
-"$RL_HOME/micromamba" clean -a -y -r "$RL_HOME/mamba"    # disk space is tight: keep no caches
 
 curl -fL https://github.com/deepmind/mujoco/releases/download/2.1.0/mujoco210-linux-x86_64.tar.gz | tar -xz -C "$RL_HOME"
 
