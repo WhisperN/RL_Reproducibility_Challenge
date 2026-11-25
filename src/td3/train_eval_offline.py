@@ -100,6 +100,8 @@ def evaluate(policy, task_name, seed, mean, std, num_episodes):
 
 
 def main(_):
+    tf.config.set_visible_devices([], 'GPU')
+
     env = gym.make(FLAGS.task_name)
     env.seed(FLAGS.seed)
     env.action_space.seed(FLAGS.seed)
