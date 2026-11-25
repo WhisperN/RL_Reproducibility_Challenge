@@ -3,7 +3,7 @@
 set -euo pipefail
 
 SRC="$(cd "$(dirname "$0")" && pwd)"
-RL_HOME="${RL_HOME:-${RENKU_WORKING_DIR:-$HOME}/.rl-env}"
+RL_HOME="${RL_HOME:-$HOME/.rl-env}"
 ENV="$RL_HOME/env"
 mkdir -p "$RL_HOME"
 
@@ -12,6 +12,7 @@ curl -fL -o "$RL_HOME/micromamba" https://github.com/mamba-org/micromamba-releas
 chmod +x "$RL_HOME/micromamba"
 "$RL_HOME/micromamba" create -y -r "$RL_HOME/mamba" -p "$ENV" -c conda-forge --override-channels \
     python=3.10 pip git tmux c-compiler patchelf "mesalib<25.1" glew glfw libgl-devel xorg-libx11 xorg-xorgproto
+"$RL_HOME/micromamba" clean -a -y -r "$RL_HOME/mamba"    # disk space is tight: keep no caches
 
 curl -fL https://github.com/deepmind/mujoco/releases/download/2.1.0/mujoco210-linux-x86_64.tar.gz | tar -xz -C "$RL_HOME"
 
@@ -33,8 +34,8 @@ EOF
 source "$RL_HOME/activate.sh"
 
 # GPU builds: the cu118 PyTorch wheels bring their own CUDA libraries, so they do not clash with TensorFlow's.
-python -m pip install "setuptools==80.10.2" wheel
-python -m pip install -r "$SRC/../requirements.txt" "tensorflow[and-cuda]==2.15.1" \
+python -m pip install --no-cache-dir "setuptools==80.10.2" wheel
+python -m pip install --no-cache-dir -r "$SRC/../requirements.txt" "tensorflow[and-cuda]==2.15.1" \
     --extra-index-url https://download.pytorch.org/whl/cu118
 
 python -c "import mujoco_py"    # compiles mujoco-py once

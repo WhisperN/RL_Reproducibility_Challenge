@@ -4,7 +4,7 @@
 #   SAVE_DIR=results/trial bash src/run_td3_experiments.sh --num_updates 10000     # trial; flags go to the training
 set -euo pipefail
 
-source "${RL_HOME:-${RENKU_WORKING_DIR:-$HOME}/.rl-env}/activate.sh"
+source "${RL_HOME:-$HOME/.rl-env}/activate.sh"
 cd "$(dirname "$0")"
 SAVE_DIR="${SAVE_DIR:-results/full}"
 
