@@ -16,6 +16,9 @@ chmod +x "$RL_HOME/micromamba"
 curl -fL https://github.com/deepmind/mujoco/releases/download/2.1.0/mujoco210-linux-x86_64.tar.gz | tar -xz -C "$RL_HOME"
 
 cat > "$RL_HOME/activate.sh" <<EOF
+# Ignore the RenkuLab image's own Python packages: pip would try to replace them and is not allowed to.
+unset PYTHONPATH PYTHONHOME PYTHONUSERBASE PIP_USER PIP_PREFIX PIP_TARGET
+export PYTHONNOUSERSITE=1
 export PATH="$ENV/bin:\$PATH"
 export CC="$ENV/bin/x86_64-conda-linux-gnu-cc"
 export CPATH="$ENV/include"
