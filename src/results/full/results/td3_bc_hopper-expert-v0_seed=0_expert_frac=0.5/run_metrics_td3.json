@@ -1,0 +1,24 @@
+{
+  "params": {
+    "task_name": "hopper-expert-v0",
+    "seed": 0,
+    "batch_size": 256,
+    "num_updates": 1000000,
+    "num_eval_episodes": 10,
+    "log_interval": 1000,
+    "eval_interval": 5000,
+    "save_dir": "results/full",
+    "expert_frac": 0.5,
+    "discount": 0.99,
+    "tau": 0.005,
+    "policy_noise": 0.2,
+    "noise_clip": 0.5,
+    "policy_freq": 2,
+    "alpha": 2.5,
+    "normalize": true
+  },
+  "status": "completed",
+  "wall_clock_s": 4577.5,
+  "wall_clock_h": 1.272,
+  "peak_rss_mb": 1802.0
+}

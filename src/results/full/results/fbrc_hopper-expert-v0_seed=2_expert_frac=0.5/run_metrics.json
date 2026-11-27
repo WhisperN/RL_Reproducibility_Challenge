@@ -1,0 +1,22 @@
+{
+  "params": {
+    "task_name": "hopper-expert-v0",
+    "seed": 2,
+    "batch_size": 256,
+    "num_updates": 1000000,
+    "algo_name": "fbrc",
+    "bc_pretraining_steps": 1000000,
+    "num_eval_episodes": 10,
+    "log_interval": 1000,
+    "eval_interval": 5000,
+    "save_dir": "results/full",
+    "eager": false,
+    "f_reg": 0.1,
+    "reward_bonus": 5.0,
+    "expert_frac": 0.5
+  },
+  "status": "completed",
+  "wall_clock_s": 14344.7,
+  "wall_clock_h": 3.985,
+  "peak_rss_mb": 2282.7
+}
